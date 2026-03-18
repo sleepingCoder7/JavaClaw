@@ -46,6 +46,13 @@ public class OnboardingController {
             return "redirect:/onboarding/" + steps.getFirst().getStepId();
         }
 
+        // When arriving at the complete step via GET (e.g. by skipping the last optional step),
+        // save configuration if the session still holds onboarding data.
+        if (COMPLETE_STEP_ID.equals(stepId) && session.getAttribute("onboarding.provider") != null) {
+            String providerLabel = saveAndComplete(session);
+            if (providerLabel != null) model.addAttribute("providerLabel", providerLabel);
+        }
+
         Map<String, Object> sessionMap = sessionToMap(session);
         Map<String, Object> stepModel = new HashMap<>(model.asMap());
         onboardingProvider.prepareModel(sessionMap, stepModel);
@@ -81,22 +88,26 @@ public class OnboardingController {
 
         String nextId = nextStepId(stepId);
         if (COMPLETE_STEP_ID.equals(nextId)) {
-            Map<String, Object> finalSession = sessionToMap(session);
-            // Pass providerLabel to complete page before clearing session
-            String providerId = (String) finalSession.getOrDefault("onboarding.provider", "");
-            SupportedProvider.from(providerId).map(SupportedProvider::label)
-                    .ifPresent(label -> redirectAttrs.addFlashAttribute("providerLabel", label));
-            try {
-                for (OnboardingProvider p : steps) {
-                    p.saveConfiguration(finalSession, configurationManager);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to save onboarding configuration", e);
-            }
-            clearOnboardingSession(session);
+            String providerLabel = saveAndComplete(session);
+            if (providerLabel != null) redirectAttrs.addFlashAttribute("providerLabel", providerLabel);
         }
 
         return "redirect:/onboarding/" + (nextId != null ? nextId : COMPLETE_STEP_ID);
+    }
+
+    private String saveAndComplete(HttpSession session) {
+        Map<String, Object> finalSession = sessionToMap(session);
+        String providerId = (String) finalSession.getOrDefault("onboarding.provider", "");
+        String providerLabel = SupportedProvider.from(providerId).map(SupportedProvider::label).orElse(null);
+        try {
+            for (OnboardingProvider p : steps) {
+                p.saveConfiguration(finalSession, configurationManager);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save onboarding configuration", e);
+        }
+        clearOnboardingSession(session);
+        return providerLabel;
     }
 
     private OnboardingProvider findProvider(String stepId) {
