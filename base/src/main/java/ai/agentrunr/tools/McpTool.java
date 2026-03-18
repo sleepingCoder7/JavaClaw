@@ -39,6 +39,8 @@ public class McpTool {
         }
         try {
             Map<String, Object> props = new LinkedHashMap<>();
+            props.put("spring.ai.mcp.client.enabled", true);
+
             URI uri = new URI(url);
             props.put("spring.ai.mcp.client.streamable-http.connections." + name + ".url", uri.getScheme() + "://" + uri.getAuthority());
             props.put("spring.ai.mcp.client.streamable-http.connections." + name + ".endpoint", uri.getPath());
@@ -78,6 +80,7 @@ public class McpTool {
         }
         try {
             Map<String, Object> props = new LinkedHashMap<>();
+            props.put("spring.ai.mcp.client.enabled", true);
             props.put("spring.ai.mcp.client.stdio.connections." + name + ".command", command);
             if (args != null && !args.isBlank()) {
                 List<String> argList = Arrays.stream(args.split(","))
