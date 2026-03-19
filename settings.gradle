@@ -4,5 +4,6 @@ include 'base'
 include 'plugins'
 include 'plugins:telegram'
 include 'plugins:playwright'
+include 'plugins:brave'
 include 'app'
 
