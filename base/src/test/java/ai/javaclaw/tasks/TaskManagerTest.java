@@ -1,6 +1,7 @@
 package ai.javaclaw.tasks;
 
 import ai.javaclaw.agent.Agent;
+import ai.javaclaw.channels.ChannelRegistry;
 import ai.javaclaw.tasks.Task.Status;
 import ai.javaclaw.tasks.TaskHandler.TaskResult;
 import org.jobrunr.configuration.JobRunr;
@@ -13,7 +14,9 @@ import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -27,17 +30,21 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 
+@ExtendWith(MockitoExtension.class)
 class TaskManagerTest {
+
+    @Mock
+    Agent agentMock;
+    @Mock
+    TaskRepository taskRepositoryMock;
+    @Mock
+    ChannelRegistry channelRegistryMock;
 
     InMemoryStorageProvider storageProvider;
     TaskManager taskManager;
-    TaskRepository taskRepositoryMock;
-    Agent agentMock;
 
     @BeforeEach
     void setUp() {
-        agentMock = Mockito.mock(Agent.class);
-        taskRepositoryMock = Mockito.mock(TaskRepository.class);
         storageProvider = new InMemoryStorageProvider();
         JobScheduler jobScheduler = JobRunr.configure()
                 .useStorageProvider(storageProvider)
@@ -59,7 +66,6 @@ class TaskManagerTest {
         Task saved = new Task("some-id", "handle-email", Instant.now(), Task.Status.todo, "Process unread email messages");
         when(taskRepositoryMock.save(any(Task.class))).thenReturn(saved);
         when(taskRepositoryMock.getTaskById("some-id")).thenReturn(saved);
-        when(taskRepositoryMock.save(any(Task.class))).thenReturn(saved);
         when(agentMock.prompt(eq("some-id"), anyString(), any())).thenReturn(new TaskResult(Status.completed, "All mail was summarized!"));
 
         taskManager.create("handle-email", "Process unread email messages");
@@ -98,11 +104,10 @@ class TaskManagerTest {
         return new JobActivator() {
             @Override
             public <T> T activateJob(Class<T> type) throws JobActivatorShutdownException {
-                if (TaskHandler.class.equals(type)) return (T) new TaskHandler(agentMock, taskRepositoryMock);
+                if (TaskHandler.class.equals(type)) return (T) new TaskHandler(agentMock, taskRepositoryMock, channelRegistryMock);
                 else if (RecurringTaskHandler.class.equals(type)) return (T) new RecurringTaskHandler(taskManager, taskRepositoryMock);
                 else throw new IllegalStateException("Type " + type + " is unknown");
             }
         };
     }
-
 }

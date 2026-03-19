@@ -154,10 +154,10 @@ class AnthropicClaudeCodeBackend implements Backend {
             // Second block: the actual system prompt from the application
             JsonNode existing = root.get("system");
             if (existing != null) {
-                if (existing.isTextual()) {
+                if (existing.isString()) {
                     ObjectNode textBlock = objectMapper.createObjectNode();
                     textBlock.put("type", "text");
-                    textBlock.put("text", existing.asText());
+                    textBlock.put("text", existing.asString());
                     systemArray.add(textBlock);
                 } else if (existing.isArray()) {
                     for (JsonNode block : existing) {
