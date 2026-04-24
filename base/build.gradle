@@ -14,7 +14,15 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-client-chat'
     implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
 
-    implementation 'org.springaicommunity:spring-ai-agent-utils:0.6.0-SNAPSHOT'
+    implementation 'org.springaicommunity:spring-ai-agent-utils:0.7.0-SNAPSHOT'
+
+    //DOCX, XLSX, PPT
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    //PDF
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30'
+    //CSV
+    implementation 'com.opencsv:opencsv:5.9'
 
     runtimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

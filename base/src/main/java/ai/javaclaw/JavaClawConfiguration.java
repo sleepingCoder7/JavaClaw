@@ -7,9 +7,15 @@ import ai.javaclaw.tools.AutoDiscoveredTool;
 import ai.javaclaw.tools.CheckListTool;
 import ai.javaclaw.tools.McpTool;
 import ai.javaclaw.tools.TaskTool;
+import ai.javaclaw.tools.office.DocTool;
+import ai.javaclaw.tools.office.DataTool;
+import ai.javaclaw.tools.office.MediaTool;
 import org.springaicommunity.agent.tools.FileSystemTools;
 import org.springaicommunity.agent.tools.SkillsTool;
 import org.springaicommunity.agent.tools.SmartWebFetchTool;
+import org.springaicommunity.agent.tools.ShellTools;
+import org.springaicommunity.agent.tools.GlobTool;
+import org.springaicommunity.agent.tools.GrepTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -93,11 +99,20 @@ public class JavaClawConfiguration {
                         CheckListTool.builder().build(),
                         McpTool.builder().configurationManager(configurationManager).build(),
                         //Bash execution tool
-                        //ShellTools.builder().build(),// built-in shell tools
+                        ShellTools.builder().build(),// built-in shell tools
+                        //Grep tool
+                        GrepTool.builder().build(),// built-in grep tools
+                        //Glob tool
+                        GlobTool.builder().build(),// built-in glob tools
                         // Read, Write and Edit files tool
                         FileSystemTools.builder().build(),// built-in file system tools
                         // Smart web fetch tool
-                        SmartWebFetchTool.builder(chatClientBuilder.clone().build()).build())
+                        SmartWebFetchTool.builder(chatClientBuilder.clone().build()).build(),
+                        //Office tools
+                        DocTool.builder().build(),
+                        DataTool.builder().build(),
+                        MediaTool.builder().build()
+                        )
                 .defaultAdvisors(
                         ToolCallAdvisor.builder().build(),
                         MessageChatMemoryAdvisor.builder(chatMemory).build()
