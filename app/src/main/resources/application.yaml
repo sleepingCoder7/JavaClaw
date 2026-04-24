@@ -13,6 +13,9 @@ spring:
       embedding: unknown
       image: unknown
       moderation: unknown
+      
+server:
+  port: 8082
 
 management:
   endpoint:
@@ -31,4 +34,4 @@ jobrunr:
     worker-count: 1
   dashboard:
     enabled: true
-    port: 8081
+    port: 8083

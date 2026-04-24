@@ -15,6 +15,13 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-client-chat'
     implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
 
+    //DOCX, XLSX, PPT
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    //PDF
+    implementation 'org.apache.pdfbox:pdfbox:2.0.30'
+    //CSV
+    implementation 'com.opencsv:opencsv:5.9'
     implementation(libs.spring.ai.agent.utils)
     implementation(libs.spring.ai.tool.search)
     implementation(libs.spring.ai.tool.search.lucene)
