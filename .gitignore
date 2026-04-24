@@ -44,3 +44,5 @@ workspace/
 !workspace/AGENT.md
 !workspace/skills/skill-creator
 *.private*
+*.jar
+logs/
