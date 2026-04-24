@@ -10,5 +10,7 @@ dependencies {
     implementation(libs.commonmark.java)
     implementation(libs.commonmark.ext.gfm.strikethrough)
 
+    implementation 'io.projectreactor:reactor-core:3.6.0'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
