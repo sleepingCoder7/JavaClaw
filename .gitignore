@@ -46,4 +46,4 @@ workspace/
 *.private*
 *.jar
 logs/
-!gradle.properties
+gradle.properties
