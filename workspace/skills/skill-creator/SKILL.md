@@ -43,6 +43,103 @@ Create `workspace/skills/<skill-name>/SKILL.md` with:
 - **`description`**: The primary triggering mechanism. Include _what_ the skill does AND _when_ to use it. The agent decides whether to load a skill based solely on this field — so be specific and make it slightly "pushy". Instead of "Helps with data analysis", write "Helps with data analysis. Use this skill whenever the user asks about datasets, CSV files, charts, or wants to understand or transform data — even if they don't say 'analysis'."
 - **Body**: Step-by-step instructions for what the agent should do. Explain the _why_ behind important steps so the agent can apply judgment, not just follow rules mechanically.
 
+#### ⚠️ CRITICAL: YAML Front Matter Validation
+
+**BEFORE saving the SKILL.md, you MUST validate the YAML front matter!**
+
+The YAML front matter (between `---` markers at the top) is parsed by JavaClaw. If it's malformed or missing required fields, the app will crash with `NullPointerException`.
+
+**Validation checklist:**
+1. ✅ YAML front matter exists (starts with `---` on line 1)
+2. ✅ `name:` field exists and matches the directory name exactly
+3. ✅ `description:` field exists and is NOT empty/null
+4. ✅ No syntax errors in YAML (proper indentation, no tabs)
+5. ✅ Closing `---` exists after the description
+
+**CORRECT example:**
+```yaml
+---
+name: skill-creator
+description: Create new skills, modify and improve existing skills for JavaClaw. Use when users want to create a skill from scratch...
+---
+```
+
+**BROKEN examples (will crash the app!):**
+```yaml
+---
+name: skill-creator
+# Missing description - NULL POINTER EXCEPTION!
+---
+```
+
+```yaml
+---
+description: Create new skills...
+# Missing name field - may cause crashes!
+---
+```
+
+```yaml
+---
+name: skill-creator
+description: 
+---
+# Empty description - NULL POINTER EXCEPTION!
+```
+
+#### 🔧 Automated Validation Command
+
+**Run this Python script BEFORE saving to catch errors:**
+
+```bash
+cd /home/radxa/agentrunr/workspace/skills/<skill-name> && python3 -c "
+import re
+with open('SKILL.md', 'r') as f:
+    content = f.read()
+    
+# Check YAML front matter
+if not content.startswith('---'):
+    print('❌ ERROR: File must start with ---')
+    exit(1)
+    
+parts = content.split('---')
+if len(parts) < 3:
+    print('❌ ERROR: Missing closing ---')
+    exit(1)
+    
+yaml_content = parts[1]
+    
+# Check name field
+if 'name:' not in yaml_content:
+    print('❌ ERROR: Missing name field')
+    exit(1)
+    
+name_match = re.search(r'name:\s*(\S+)', yaml_content)
+if not name_match or not name_match.group(1).strip():
+    print('❌ ERROR: name field is empty or null')
+    exit(1)
+    
+# Check description field
+if 'description:' not in yaml_content:
+    print('❌ ERROR: Missing description field')
+    exit(1)
+    
+desc_match = re.search(r'description:\s*(.+)', yaml_content)
+if not desc_match or not desc_match.group(1).strip():
+    print('❌ ERROR: description field is empty or null')
+    exit(1)
+    
+print('✅ YAML validation passed!')
+print(f'   name: {name_match.group(1).strip()}')
+print(f'   description: {desc_match.group(1).strip()[:50]}...')
+"
+```
+
+**If validation fails:**
+- Fix the error immediately
+- Re-run validation until it passes
+- ONLY then save the file
+
 #### Anatomy of a skill
 
 ```
@@ -85,11 +182,80 @@ Write: feat(auth): add Google OAuth login
 
 ## Testing the skill
 
+### ⚠️ MANDATORY 3-Step Testing Process
+
+**BEFORE declaring a skill complete, you MUST run all 3 steps:**
+
+#### Step 1: YAML Validation (MANDATORY - prevents crashes!)
+
+```bash
+cd /home/radxa/agentrunr/workspace/skills/<skill-name> && python3 -c "
+import re
+with open('SKILL.md', 'r') as f:
+    content = f.read()
+    
+if not content.startswith('---'):
+    print('❌ ERROR: File must start with ---')
+    exit(1)
+    
+parts = content.split('---')
+if len(parts) < 3:
+    print('❌ ERROR: Missing closing ---')
+    exit(1)
+    
+yaml_content = parts[1]
+
+if 'name:' not in yaml_content:
+    print('❌ ERROR: Missing name field')
+    exit(1)
+    
+name_match = re.search(r'name:\s*(\S+)', yaml_content)
+if not name_match or not name_match.group(1).strip():
+    print('❌ ERROR: name field is empty or null')
+    exit(1)
+    
+if 'description:' not in yaml_content:
+    print('❌ ERROR: Missing description field')
+    exit(1)
+    
+desc_match = re.search(r'description:\s*(.+)', yaml_content)
+if not desc_match or not desc_match.group(1).strip():
+    print('❌ ERROR: description field is empty or null')
+    exit(1)
+    
+print('✅ YAML validation passed!')
+"
+```
+
+**Expected output:** `✅ YAML validation passed!`
+
+**If this step fails:** DO NOT proceed. Fix the YAML errors first.
+
+#### Step 2: Functional Testing
+
 After writing a draft, come up with 2-3 realistic test prompts — things a real user would actually say. Share them and confirm with the user before proceeding.
 
 For each test prompt, read the skill and follow its instructions yourself to complete the task. Present the output to the user and ask for feedback:
 
 > "Here's what the agent would do for: _[prompt]_. Does this look right? Anything you'd change?"
+
+This is intentionally lightweight — you wrote the skill and you're running it, so you have full context. The goal is a quick sanity check, not a rigorous benchmark. The human review is what matters.
+
+#### Step 3: Verify App Doesn't Crash
+
+**Final safety check before completing the task:**
+
+1. Ensure the skill file is saved
+2. Verify no syntax errors in YAML (Step 1 passed)
+3. Confirm `name` and `description` are NOT empty
+4. **Optional but recommended:** Restart JavaClaw and verify the skill loads without errors
+
+**Checklist before marking task complete:**
+- [ ] ✅ Step 1: YAML validation passed
+- [ ] ✅ Step 2: Functional tests completed with user feedback
+- [ ] ✅ Step 3: No crashes, skill loads successfully
+
+---
 
 This is intentionally lightweight — you wrote the skill and you're running it, so you have full context. The goal is a quick sanity check, not a rigorous benchmark. The human review is what matters.
 
