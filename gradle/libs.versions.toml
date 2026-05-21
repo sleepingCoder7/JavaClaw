@@ -12,6 +12,7 @@ bom-spring-modulith = { module = "org.springframework.modulith:spring-modulith-b
 spring-ai-agent-utils = { module = "org.springaicommunity:spring-ai-agent-utils", version = "0.7.0" }
 spring-ai-tool-search = { module = "org.springaicommunity:tool-search-tool", version.ref = "tool-search" }
 spring-ai-tool-search-lucene = { module = "org.springaicommunity:tool-searcher-lucene", version.ref = "tool-search" }
+spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring-boot" }
 
 netty-resolver-dns-native-macos = { module = "io.netty:netty-resolver-dns-native-macos", version = "4.2.12.Final" }
 jobrunr-spring-starter = { module = "org.jobrunr:jobrunr-spring-boot-4-starter", version = "8.6.0"}
