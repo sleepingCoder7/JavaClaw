@@ -4,6 +4,7 @@ import ai.javaclaw.agent.Agent;
 import ai.javaclaw.channels.Channel;
 import ai.javaclaw.channels.ChannelMessageReceivedEvent;
 import ai.javaclaw.channels.ChannelRegistry;
+import ai.javaclaw.errorreporting.PasteService;
 import org.commonmark.ext.gfm.strikethrough.StrikethroughExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,12 +53,13 @@ public class TelegramChannel implements Channel, SpringLongPollingBot, LongPolli
     private final ChannelRegistry channelRegistry;
     private Long chatId;
     private String botUsername;
+    private PasteService pasteService;
 
-    public TelegramChannel(String botToken, List<String> allowedUsernames, Agent agent, ChannelRegistry channelRegistry) {
-        this(botToken, allowedUsernames, new OkHttpTelegramClient(botToken), agent, channelRegistry);
+    public TelegramChannel(String botToken, List<String> allowedUsernames, Agent agent, ChannelRegistry channelRegistry, PasteService pasteService) {
+        this(botToken, allowedUsernames, new OkHttpTelegramClient(botToken), agent, channelRegistry, pasteService);
     }
 
-    TelegramChannel(String botToken, List<String> allowedUsernames, TelegramClient telegramClient, Agent agent, ChannelRegistry channelRegistry) {
+    TelegramChannel(String botToken, List<String> allowedUsernames, TelegramClient telegramClient, Agent agent, ChannelRegistry channelRegistry, PasteService pasteService) {
         this.botToken = botToken;
         this.allowedUsernames = normalizeUsernames(allowedUsernames);
         this.telegramClient = telegramClient;
@@ -65,6 +67,7 @@ public class TelegramChannel implements Channel, SpringLongPollingBot, LongPolli
         this.channelRegistry = channelRegistry;
         channelRegistry.registerChannel(this);
         setBotUsername();
+        this.pasteService = pasteService;
         LOGGER.info("Started Telegram integration");
     }
 
@@ -158,7 +161,15 @@ public class TelegramChannel implements Channel, SpringLongPollingBot, LongPolli
         })
         .doOnError(e -> {
             LOGGER.error("Streaming error", e);
-            editMessage(chatId, messageId, "⚠️ Error occurred.");
+            String url = pasteService.publish(e);
+            String message = """
+                   ⚠️ Error occurred. 
+                   
+                   %s
+                   
+                   %s
+                   """.formatted(e.getMessage(),url != null ? url : "Failed to upload stacktrace");
+            editMessage(chatId, messageId, message);
             typingThread.interrupt();
         })
         .doOnComplete(() -> {

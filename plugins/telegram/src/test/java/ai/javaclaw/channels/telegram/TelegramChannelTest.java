@@ -2,6 +2,7 @@ package ai.javaclaw.channels.telegram;
 
 import ai.javaclaw.agent.Agent;
 import ai.javaclaw.channels.ChannelRegistry;
+import ai.javaclaw.errorreporting.PasteService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -31,6 +32,9 @@ class TelegramChannelTest {
 
     @Mock
     private Agent agent;
+
+    @Mock
+    private PasteService pasteService;
 
     // -----------------------------------------------------------------------
     // Ignored updates
@@ -234,7 +238,7 @@ class TelegramChannelTest {
     // -----------------------------------------------------------------------
 
     private TelegramChannel channel(String allowedUsername) {
-        return new TelegramChannel("token", allowedUsername, telegramClient, agent, new ChannelRegistry());
+        return new TelegramChannel("token", allowedUsername, telegramClient, agent, new ChannelRegistry(), pasteService);
     }
 
     private Update updateFromUnknownUser(String username) {

@@ -8,6 +8,7 @@ dependencies {
     implementation(libs.jobrunr.spring.starter)
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.fasterxml.jackson.core:jackson-core'
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
 
     // No idea?
     runtimeOnly(libs.netty.resolver.dns.native.macos)
